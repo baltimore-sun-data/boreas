@@ -1,0 +1,3 @@
+[prune]
+  unused-packages = true
+  go-tests = true
