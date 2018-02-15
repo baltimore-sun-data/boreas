@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -25,6 +26,23 @@ func FromArgs(args []string) (inv *Invalidator, err error) {
 	fl.StringVar(&inv.dist, "dist", "", "CloudFront distribution ID")
 	fl.StringVar(&inv.ref, "ref", "",
 		"CloudFront 'CallerReference', a unique identifier for this invalidation request. (default: Unix timestamp)")
+	fl.Usage = func() {
+		fmt.Fprintf(os.Stderr,
+			`Usage of boreas:
+
+    boreas [options] <invalidation path>...
+
+Invalidation path defaults to '/*'.
+
+AWS credentials taken from ~/.aws/ or from "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", and other AWS configuration environment variables.
+
+
+Options:
+
+`,
+		)
+		fl.PrintDefaults()
+	}
 	_ = fl.Parse(args)
 
 	if inv.dist == "" {
@@ -33,7 +51,7 @@ func FromArgs(args []string) (inv *Invalidator, err error) {
 
 	inv.paths = fl.Args()
 	if len(inv.paths) < 1 {
-		return nil, errors.New("at least one invalidation path must be provided")
+		inv.paths = []string{"/*"}
 	}
 
 	if inv.ref == "" {
