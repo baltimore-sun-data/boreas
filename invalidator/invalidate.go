@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -52,6 +53,11 @@ Options:
 	inv.paths = fl.Args()
 	if len(inv.paths) < 1 {
 		inv.paths = []string{"/*"}
+	}
+	for i, p := range inv.paths {
+		if !strings.HasPrefix(p, "/") {
+			inv.paths[i] = "/" + p
+		}
 	}
 
 	if inv.ref == "" {
