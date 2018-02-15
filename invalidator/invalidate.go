@@ -14,6 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudfront"
 )
 
+// Invalidator is an object that can invalidate a specific CloudFront
+// distibution or check the status of an existing invalidation.
 type Invalidator struct {
 	cf    *cloudfront.CloudFront
 	dist  string
@@ -22,6 +24,25 @@ type Invalidator struct {
 	wait  time.Duration
 }
 
+// New creates a useable new Invalidator. If cf is nil, New attempts to create
+// an Amazon default session and panics on failure. If callerReference is
+// "", a Unix timestamp is used.
+func New(cf *cloudfront.CloudFront, callerReference, distID string, paths ...string) *Invalidator {
+	if cf == nil {
+		cf = cloudfront.New(session.Must(session.NewSession()))
+	}
+	if callerReference == "" {
+		callerReference = fmt.Sprintf("%d", time.Now().Unix())
+	}
+	return &Invalidator{
+		cf:    cf,
+		dist:  distID,
+		ref:   callerReference,
+		paths: paths,
+	}
+}
+
+// FromArgs creates a new Invalidator from command line arguments. Warning: Exits for unknown flags.
 func FromArgs(args []string) (inv *Invalidator, err error) {
 	inv = &Invalidator{}
 	fl := flag.NewFlagSet("boreas", flag.ExitOnError)
@@ -71,6 +92,7 @@ Options:
 	return
 }
 
+// Execute runs the invalidator for the CLI.
 func (inv *Invalidator) Execute() error {
 	id, err := inv.Invalidate()
 	if err != nil {
@@ -111,6 +133,7 @@ func makepaths(paths []string) *cloudfront.Paths {
 	}
 }
 
+// Invalidate invalidates the underlying distribution. The id returned can be used with Done().
 func (inv *Invalidator) Invalidate() (id string, err error) {
 	result, err := inv.cf.CreateInvalidation(&cloudfront.CreateInvalidationInput{
 		DistributionId: &inv.dist,
@@ -126,6 +149,7 @@ func (inv *Invalidator) Invalidate() (id string, err error) {
 	return *result.Invalidation.Id, nil
 }
 
+// Done returns a bool indicating whether the referenced invalidation has completed.
 func (inv *Invalidator) Done(id string) (done bool, err error) {
 	result, err := inv.cf.GetInvalidation(&cloudfront.GetInvalidationInput{
 		DistributionId: &inv.dist,
