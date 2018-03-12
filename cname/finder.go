@@ -1,3 +1,4 @@
+// Package cname contains tools for finding the CNAMEs associated with a distribution in CloudFront.
 package cname
 
 import (
