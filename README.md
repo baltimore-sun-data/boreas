@@ -1,4 +1,4 @@
-# Boreas [![GoDoc](https://godoc.org/github.com/baltimore-sun-data/boreas?status.svg)](https://godoc.org/github.com/baltimore-sun-data/boreas) [![Go Report Card](https://goreportcard.com/badge/github.com/baltimore-sun-data/boreas)](https://goreportcard.com/report/github.com/baltimore-sun-data/boreas)
+# Boreas [![GoDoc](https://godoc.org/github.com/baltimore-sun-data/boreas?status.svg)](https://godoc.org/github.com/baltimore-sun-data/boreas) [![Go Report Card](https://goreportcard.com/badge/github.com/baltimore-sun-data/boreas)](https://goreportcard.com/report/github.com/baltimore-sun-data/boreas) [![Build Status](https://travis-ci.org/baltimore-sun-data/boreas.svg?branch=master)](https://travis-ci.org/baltimore-sun-data/boreas)
 
 Boreas is a CloudFront invalidator.  It is named after [the Greek god of the North Wind](https://en.wikipedia.org/wiki/Anemoi#Boreas), who blows all the clouds away.
 
