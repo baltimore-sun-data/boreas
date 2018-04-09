@@ -12,7 +12,7 @@ matrix:
     - go: tip
   fast_finish: true
 install:
-  - go get github.com/golang/dep
-script:
+  - go get -u github.com/golang/dep
   - dep ensure
+script:
   - go test
