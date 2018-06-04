@@ -108,11 +108,10 @@ func (inv *Invalidator) Execute() error {
 		return nil
 	}
 
-	fmt.Print("Invalidation in progress")
+	fmt.Println("Invalidation in progress")
 	defer fmt.Println()
 	deadline := time.Now().Add(inv.wait)
 	for deadline.After(time.Now()) {
-		time.Sleep(10 * time.Second)
 		done, err := inv.Done(id)
 		if err != nil {
 			return err
@@ -120,7 +119,8 @@ func (inv *Invalidator) Execute() error {
 		if done {
 			return nil
 		}
-		fmt.Print(".")
+		log.Print("waiting")
+		time.Sleep(10 * time.Second)
 	}
 	return fmt.Errorf("wait timeout of %v exceeded", inv.wait)
 }
