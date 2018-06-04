@@ -42,9 +42,9 @@ func New(cf *cloudfront.CloudFront, callerReference, distID string, paths ...str
 	}
 }
 
-// FromArgs creates a new Invalidator from command line arguments. Warning: Exits for unknown flags.
-func FromArgs(args []string) (inv *Invalidator, err error) {
-	inv = &Invalidator{}
+// FromArgs creates a new Invalidator from command line arguments. Warning: Exits on error.
+func FromArgs(args []string) *Invalidator {
+	inv := &Invalidator{}
 	fl := flag.NewFlagSet("boreas", flag.ExitOnError)
 	fl.StringVar(&inv.dist, "dist", "", "CloudFront distribution ID")
 	fl.StringVar(&inv.ref, "ref", "",
@@ -69,10 +69,6 @@ Options:
 	}
 	_ = fl.Parse(args)
 
-	if inv.dist == "" {
-		return nil, errors.New("distribution must be set")
-	}
-
 	inv.paths = fl.Args()
 	if len(inv.paths) < 1 {
 		inv.paths = []string{"/*"}
@@ -86,14 +82,22 @@ Options:
 	if inv.ref == "" {
 		inv.ref = fmt.Sprintf("%d", time.Now().Unix())
 	}
-
-	s, err := session.NewSession()
-	inv.cf = cloudfront.New(s)
-	return
+	return inv
 }
 
 // Execute runs the invalidator for the CLI.
 func (inv *Invalidator) Execute() error {
+	if inv.dist == "" {
+		return errors.New("distribution must be set")
+	}
+	if inv.cf == nil {
+		s, err := session.NewSession()
+		if err != nil {
+			return fmt.Errorf("could not create a new session: %v", err)
+		}
+		inv.cf = cloudfront.New(s)
+	}
+
 	id, err := inv.Invalidate()
 	if err != nil {
 		return err
